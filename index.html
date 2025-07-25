@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Día Súper Saludable de Martin</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f9ff; /* Light blue background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+        #game-container {
+            background-color: #ffffff;
+            border-radius: 1.5rem; /* More rounded */
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 900px; /* Max width for desktop */
+            min-height: 600px; /* Min height for better appearance */
+            position: relative;
+            transition: background-color 0.5s ease-in-out; /* Changed to background-color */
+        }
+
+        /* Backgrounds for different times of day - now solid colors */
+        .bg-morning { background-color: #a7e6ff; } /* Light Sky Blue */
+        .bg-breakfast { background-color: #ffe0b2; } /* Light Orange */
+        .bg-school-walk { background-color: #c8e6c9; } /* Light Green */
+        .bg-recess { background-color: #ffecb3; } /* Light Yellow */
+        .bg-after-school { background-color: #bbdefb; } /* Light Blue */
+        .bg-night { background-color: #9fa8da; } /* Light Indigo */
+
+        #martin-character-container {
+            text-align: center;
+            margin-top: 1rem;
+            width: 150px; /* Fixed width for the character area */
+            height: 150px; /* Fixed height for the character area */
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%; /* Make the container round */
+            overflow: hidden; /* Ensure content stays within the circle */
+        }
+
+        #martin-character-background {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background-color: #81c784; /* A solid color for the child's "base" */
+            animation: bounce 1s infinite alternate; /* Apply bounce to the background circle */
+        }
+
+        #martin-emoji {
+            font-size: 8rem; /* Larger emoji */
+            position: relative; /* Position relative to its normal flow, but above background */
+            z-index: 20; /* Ensure emoji is above the background circle */
+            line-height: 1; /* Adjust line height to prevent extra space */
+        }
+
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-10px); }
+        }
+
+        .meter-bar {
+            height: 1rem;
+            border-radius: 0.5rem;
+            background-color: #e0e0e0;
+            overflow: hidden;
+        }
+        .meter-fill {
+            height: 100%;
+            border-radius: 0.5rem;
+            transition: width 0.5s ease-in-out, background-color 0.5s ease-in-out;
+        }
+        .meter-energy { background-color: #4CAF50; /* Green */ }
+        .meter-happiness { background-color: #FFC107; /* Amber */ }
+        .meter-productivity { background-color: #2196F3; /* Blue */ }
+
+        .btn-option {
+            background-color: #81c784; /* Light green */
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 9999px; /* Pill shape */
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 2px solid #66bb6a; /* Darker green border */
+        }
+        .btn-option:hover {
+            background-color: #66bb6a; /* Darker green on hover */
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+        .btn-option:active {
+            background-color: #4CAF50;
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-reset, .btn-modal {
+            background-color: #ef5350; /* Red */
+            color: white;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .btn-reset:hover, .btn-modal:hover {
+            background-color: #e53935; /* Darker red on hover */
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+
+        /* Modal styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+
+        /* Breakfast activity styles */
+        .ingredient-btn {
+            background-color: #ffeb3b; /* Yellow */
+            color: #333;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .ingredient-btn:hover {
+            background-color: #fdd835; /* Darker yellow */
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container" class="relative flex flex-col items-center p-6 sm:p-8 md:p-10 lg:p-12">
+        <!-- Background element, dynamically updated -->
+        <div id="background" class="absolute inset-0 z-0 rounded-xl"></div>
+
+        <!-- Martin Character -->
+        <div id="martin-character-container" class="relative z-10">
+            <!-- Static background circle for the character visual -->
+            <div id="martin-character-background"></div>
+            <!-- Dynamic emoji representing Martin's state -->
+            <span id="martin-emoji">😴</span>
+        </div>
+
+        <!-- Meters -->
+        <div id="meters-container" class="relative z-10 w-full grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+            <div class="flex flex-col items-center">
+                <span class="font-bold text-lg text-gray-700">Energía</span>
+                <div class="meter-bar w-full">
+                    <div id="meter-energy" class="meter-fill meter-energy" style="width: 100%;"></div>
+                </div>
+            </div>
+            <div class="flex flex-col items-center">
+                <span class="font-bold text-lg text-gray-700">Felicidad</span>
+                <div class="meter-bar w-full">
+                    <div id="meter-happiness" class="meter-fill meter-happiness" style="width: 100%;"></div>
+                </div>
+            </div>
+            <div class="flex flex-col items-center">
+                <span class="font-bold text-lg text-gray-700">Productividad</span>
+                <div class="meter-bar w-full">
+                    <div id="meter-productivity" class="meter-fill meter-productivity" style="width: 100%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rewards -->
+        <div id="rewards-container" class="relative z-10 w-full flex justify-center gap-4 mb-6 text-2xl">
+            <span>⭐ <span id="reward-stars">0</span></span>
+            <span>🏅 <span id="reward-medals">0</span></span>
+            <span>🏆 <span id="reward-trophies">0</span></span>
+        </div>
+
+        <!-- Scenario Description -->
+        <div id="scenario-box" class="relative z-10 bg-white p-6 rounded-xl shadow-md text-center mb-8 w-full max-w-xl">
+            <p id="scenario-text" class="text-xl md:text-2xl font-semibold text-gray-800">¡Bienvenido al día de Martin!</p>
+        </div>
+
+        <!-- Options Container -->
+        <div id="options-container" class="relative z-10 w-full flex flex-col sm:flex-row justify-center gap-4 mb-8">
+            <!-- Options will be dynamically added here -->
+        </div>
+
+        <!-- Breakfast Activity (hidden by default) -->
+        <div id="breakfast-activity" class="relative z-10 hidden flex-col items-center bg-white p-6 rounded-xl shadow-md w-full max-w-xl">
+            <h3 class="text-xl font-bold mb-4 text-gray-800">¡Prepara el cereal de Martin!</h3>
+            <p class="text-gray-700 mb-4">Haz clic en los ingredientes para añadirlos al tazón:</p>
+            <div class="flex flex-wrap justify-center gap-3 mb-6">
+                <button class="ingredient-btn" data-ingredient="leche">🥛 Leche (+5 Energía)</button>
+                <button class="ingredient-btn" data-ingredient="frutas">🍓 Frutas (+10 Felicidad)</button>
+                <button class="ingredient-btn" data-ingredient="miel">🍯 Miel (+5 Productividad)</button>
+                <button class="ingredient-btn" data-ingredient="azucar">🍬 Azúcar (-5 Energía)</button>
+            </div>
+            <p class="text-gray-700 mb-4">Ingredientes añadidos: <span id="added-ingredients" class="font-semibold">Ninguno</span></p>
+            <button id="finish-cereal-btn" class="btn-option bg-blue-500 hover:bg-blue-600">¡Listo!</button>
+        </div>
+
+        <!-- Reset Button -->
+        <button id="reset-button" class="relative z-10 btn-reset mt-auto">Reiniciar Día</button>
+    </div>
+
+    <!-- Custom Message Modal -->
+    <div id="message-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3 id="message-modal-title" class="text-2xl font-bold mb-4 text-gray-800"></h3>
+            <p id="message-modal-text" class="text-lg text-gray-700 mb-6"></p>
+            <button id="message-modal-close" class="btn-modal">Cerrar</button>
+        </div>
+    </div>
+
+    <!-- Custom Summary Modal -->
+    <div id="summary-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3 id="summary-modal-title" class="text-3xl font-bold mb-4 text-gray-800"></h3>
+            <p id="summary-modal-text" class="text-lg text-gray-700 mb-6"></p>
+            <button id="summary-modal-close" class="btn-modal">Reiniciar</button>
+        </div>
+    </div>
+
+    <script>
+        // Game state variables
+        let gameData = {
+            currentStage: 0,
+            meters: {
+                energy: 100,
+                happiness: 100,
+                productivity: 100
+            },
+            rewards: {
+                stars: 0,
+                medals: 0,
+                trophies: 0
+            },
+            martinEmoji: '😴', // This will be the initial emoji
+            cerealIngredients: []
+        };
+
+        // DOM elements
+        const gameContainer = document.getElementById('game-container');
+        const backgroundElement = document.getElementById('background');
+        const martinEmojiElement = document.getElementById('martin-emoji'); // Now points directly to the emoji span
+        const meterEnergyFill = document.getElementById('meter-energy');
+        const meterHappinessFill = document.getElementById('meter-happiness');
+        const meterProductivityFill = document.getElementById('meter-productivity');
+        const rewardStars = document.getElementById('reward-stars');
+        const rewardMedals = document.getElementById('reward-medals');
+        const rewardTrophies = document.getElementById('reward-trophies');
+        const scenarioTextElement = document.getElementById('scenario-text');
+        const optionsContainer = document.getElementById('options-container');
+        const resetButton = document.getElementById('reset-button');
+        const breakfastActivity = document.getElementById('breakfast-activity');
+        const addedIngredientsSpan = document.getElementById('added-ingredients');
+        const finishCerealBtn = document.getElementById('finish-cereal-btn');
+
+        // Modal elements
+        const messageModal = document.getElementById('message-modal');
+        const messageModalTitle = document.getElementById('message-modal-title');
+        const messageModalText = document.getElementById('message-modal-text');
+        const messageModalCloseBtn = document.getElementById('message-modal-close');
+        const summaryModal = document.getElementById('summary-modal');
+        const summaryModalTitle = document.getElementById('summary-modal-title');
+        const summaryModalText = document.getElementById('summary-modal-text');
+        const summaryModalCloseBtn = document.getElementById('summary-modal-close');
+
+        // Game Scenarios
+        const scenarios = [
+            {
+                id: 'wakeUp',
+                backgroundClass: 'bg-morning',
+                martinEmoji: '😴', // Emoji for this state
+                narration: '¡Buenos días, Martin! Es hora de levantarse. ¿Qué haces primero?',
+                options: [
+                    {
+                        text: 'Estirarse y beber un vaso de agua',
+                        effect: { energy: 15, happiness: 5, productivity: 0 },
+                        reward: 'star',
+                        martinEmoji: '😊',
+                        narration: '¡Excelente! Un buen estiramiento y agua te dan energía para empezar el día.'
+                    },
+                    {
+                        text: 'Quedarse 5 minutos más en la cama',
+                        effect: { energy: -10, happiness: 0, productivity: -5 },
+                        martinEmoji: '🥱',
+                        narration: 'Mmm, esos 5 minutos extra te hacen sentir un poco más cansado y con menos ganas de hacer cosas.'
+                    }
+                ]
+            },
+            {
+                id: 'personalHygiene', // NEW SCENARIO FOR PERSONAL HYGIENE
+                backgroundClass: 'bg-morning', // Can reuse morning background
+                martinEmoji: '🧼', // Clean emoji
+                narration: 'Martin ya está despierto. ¡Es hora de prepararse para el día! ¿Qué hace primero?',
+                options: [
+                    {
+                        text: 'Cepillarse los dientes y lavarse la cara',
+                        effect: { energy: 5, happiness: 10, productivity: 5 },
+                        reward: 'star',
+                        martinEmoji: '✨',
+                        narration: '¡Qué bien! Martin se siente fresco y listo para todo.'
+                    },
+                    {
+                        text: 'Saltarse el aseo personal',
+                        effect: { energy: -5, happiness: -10, productivity: -5 },
+                        martinEmoji: '🤢',
+                        narration: 'Mmm, saltarse el aseo personal puede hacer que Martin se sienta un poco menos feliz y preparado.'
+                    }
+                ]
+            },
+            {
+                id: 'breakfast',
+                backgroundClass: 'bg-breakfast',
+                martinEmoji: '😋',
+                narration: '¡Es hora del desayuno! Martin tiene hambre. ¿Qué le preparas?',
+                options: [
+                    {
+                        text: 'Preparar un tazón de cereal saludable',
+                        action: 'breakfastActivity', // Special action for interactive breakfast
+                        narration: '¡Vamos a preparar un desayuno delicioso y nutritivo para Martin!',
+                        martinEmoji: '🤩'
+                    },
+                    {
+                        text: 'Comer galletas y un refresco',
+                        effect: { energy: -20, happiness: -10, productivity: -15 },
+                        martinEmoji: '🤢',
+                        narration: '¡Oh no! Las galletas y el refresco no son un buen desayuno. Martin se siente pesado y con poca energía.'
+                    }
+                ]
+            },
+            {
+                id: 'schoolWalk',
+                backgroundClass: 'bg-school-walk',
+                martinEmoji: '🚶',
+                narration: 'Es hora de ir a la escuela. ¿Cómo llega Martin?',
+                options: [
+                    {
+                        text: 'Caminar o ir en bicicleta',
+                        effect: { energy: 10, happiness: 10, productivity: 5 },
+                        reward: 'medal',
+                        martinEmoji: '🚴',
+                        narration: '¡Genial! Caminar o ir en bicicleta es bueno para la salud y el medio ambiente.'
+                    },
+                    {
+                        text: 'Ir en coche',
+                        effect: { energy: -5, happiness: -5, productivity: 0 },
+                        martinEmoji: '🚗',
+                        narration: 'Ir en coche es cómodo, pero Martin pierde la oportunidad de hacer ejercicio.'
+                    }
+                ]
+            },
+            {
+                id: 'recess',
+                backgroundClass: 'bg-recess',
+                martinEmoji: '🤸',
+                narration: '¡Recreo! ¿Qué hace Martin durante el descanso?',
+                options: [
+                    {
+                        text: 'Jugar activamente con amigos',
+                        effect: { energy: 15, happiness: 20, productivity: 10 },
+                        reward: 'star',
+                        martinEmoji: '🥳',
+                        narration: '¡Excelente! Jugar y moverse es perfecto para el recreo. Martin está feliz y lleno de energía.'
+                    },
+                    {
+                        text: 'Sentarse a usar el teléfono',
+                        effect: { energy: -10, happiness: -15, productivity: -5 },
+                        martinEmoji: '📱',
+                        narration: 'Mmm, pasar el recreo con el teléfono no es lo más saludable. Martin se siente un poco aburrido y sin energía.'
+                    }
+                ]
+            },
+            {
+                id: 'afterSchool',
+                backgroundClass: 'bg-after-school',
+                martinEmoji: '📚',
+                narration: 'Después de la escuela, ¿qué hace Martin?',
+                options: [
+                    {
+                        text: 'Hacer la tarea y luego jugar al aire libre',
+                        effect: { energy: 10, happiness: 15, productivity: 20 },
+                        reward: 'trophy',
+                        martinEmoji: '🧠',
+                        narration: '¡Muy bien! Primero las responsabilidades y luego la diversión. Martin es muy productivo y feliz.'
+                    },
+                    {
+                        text: 'Ver televisión por horas',
+                        effect: { energy: -15, happiness: -10, productivity: -10 },
+                        martinEmoji: '📺',
+                        narration: 'Demasiada televisión puede hacer que Martin se sienta cansado y un poco perezoso.'
+                    }
+                ]
+            },
+            {
+                id: 'night',
+                backgroundClass: 'bg-night',
+                martinEmoji: '🌙',
+                narration: 'Es de noche. ¿Cuál es la mejor opción para Martin antes de dormir?',
+                options: [
+                    {
+                        text: 'Leer un libro y acostarse temprano',
+                        effect: { energy: 20, happiness: 10, productivity: 10 },
+                        reward: 'star',
+                        martinEmoji: '😴',
+                        narration: '¡Perfecto! Un buen descanso es clave para un día súper saludable mañana.'
+                    },
+                    {
+                        text: 'Jugar videojuegos hasta tarde',
+                        effect: { energy: -25, happiness: -15, productivity: -20 },
+                        martinEmoji: '🎮',
+                        narration: 'Jugar hasta tarde afecta el sueño de Martin. ¡Mañana estará muy cansado!'
+                    }
+                ]
+            }
+        ];
+
+        // --- Utility Functions ---
+
+        /**
+         * Clamps a number between a minimum and maximum value.
+         * @param {number} value - The number to clamp.
+         * @param {number} min - The minimum allowed value.
+         * @param {number} max - The maximum allowed value.
+         * @returns {number} The clamped value.
+         */
+        function clamp(value, min, max) {
+            return Math.max(min, Math.min(value, max));
+        }
+
+        /**
+         * Updates the visual representation of Martin's meters.
+         */
+        function updateMetersUI() {
+            meterEnergyFill.style.width = `${gameData.meters.energy}%`;
+            meterHappinessFill.style.width = `${gameData.meters.happiness}%`;
+            meterProductivityFill.style.width = `${gameData.meters.productivity}%`;
+
+            // Change color based on meter level for visual feedback
+            meterEnergyFill.style.backgroundColor = gameData.meters.energy > 50 ? '#4CAF50' : (gameData.meters.energy > 20 ? '#FFC107' : '#ef5350');
+            meterHappinessFill.style.backgroundColor = gameData.meters.happiness > 50 ? '#FFC107' : (gameData.meters.happiness > 20 ? '#FF9800' : '#ef5350');
+            meterProductivityFill.style.backgroundColor = gameData.meters.productivity > 50 ? '#2196F3' : (gameData.meters.productivity > 20 ? '#03A9F4' : '#ef5350');
+        }
+
+        /**
+         * Updates the visual representation of rewards.
+         */
+        function updateRewardsUI() {
+            rewardStars.textContent = gameData.rewards.stars;
+            rewardMedals.textContent = gameData.rewards.medals;
+            rewardTrophies.textContent = gameData.rewards.trophies;
+        }
+
+        /**
+         * Updates Martin's emoji.
+         * @param {string} emoji - The emoji character to display.
+         */
+        function updateMartinEmoji(emoji) {
+            martinEmojiElement.textContent = emoji;
+        }
+
+        /**
+         * Updates the game background based on the current scenario.
+         * @param {string} className - The Tailwind class for the background color.
+         */
+        function updateBackground(className) {
+            // Remove all existing bg classes
+            const classesToRemove = ['bg-morning', 'bg-breakfast', 'bg-school-walk', 'bg-recess', 'bg-after-school', 'bg-night'];
+            classesToRemove.forEach(cls => backgroundElement.classList.remove(cls));
+            // Add the new class
+            backgroundElement.classList.add(className);
+        }
+
+        /**
+         * Speaks the given text using the Web Speech API.
+         * Returns a Promise that resolves when speech ends or if not supported.
+         * @param {string} text - The text to speak.
+         * @returns {Promise<void>} A promise that resolves when speech is done.
+         */
+        function speakText(text) {
+            return new Promise((resolve) => {
+                if ('speechSynthesis' in window) {
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'es-ES'; // Set language to Spanish
+                    utterance.onend = () => {
+                        resolve(); // Resolve the promise when speech ends
+                    };
+                    utterance.onerror = (event) => {
+                        // This error {"isTrusted":true} often appears in console but doesn't stop speech.
+                        // It generally means the event was triggered by user action.
+                        // We resolve the promise to ensure game flow continues.
+                        resolve();
+                    };
+                    speechSynthesis.speak(utterance);
+                } else {
+                    console.warn('Web Speech API no soportada en este navegador.');
+                    resolve(); // Resolve immediately if not supported
+                }
+            });
+        }
+
+        /**
+         * Shows a custom modal with a title, message, and a close button.
+         * @param {string} title - The title of the modal.
+         * @param {string} message - The message content.
+         * @param {Function} onClose - Callback function when the modal is closed.
+         */
+        function showMessageModal(title, message, onClose = null) {
+            messageModalTitle.textContent = title;
+            messageModalText.textContent = message;
+            messageModal.classList.remove('hidden');
+
+            const closeHandler = () => {
+                messageModal.classList.add('hidden');
+                messageModalCloseBtn.removeEventListener('click', closeHandler);
+                if (onClose) {
+                    onClose();
+                }
+            };
+            messageModalCloseBtn.addEventListener('click', closeHandler);
+        }
+
+        /**
+         * Shows the game summary modal.
+         * @param {string} title - The title of the summary.
+         * @param {string} message - The summary message.
+         */
+        function showSummaryModal(title, message) {
+            summaryModalTitle.textContent = title;
+            summaryModalText.textContent = message;
+            summaryModal.classList.remove('hidden');
+
+            summaryModalCloseBtn.addEventListener('click', () => {
+                summaryModal.classList.add('hidden');
+                resetGame();
+            }, { once: true }); // Use once: true to prevent multiple listeners
+        }
+
+        // --- Game Logic ---
+
+        /**
+         * Renders the current game stage (scenario, options, UI).
+         */
+        function renderGameStage() {
+            const currentScenario = scenarios[gameData.currentStage];
+
+            if (!currentScenario) {
+                showGameSummary();
+                return;
+            }
+
+            updateBackground(currentScenario.backgroundClass);
+            updateMartinEmoji(currentScenario.martinEmoji); // Update emoji before speaking
+            scenarioTextElement.textContent = currentScenario.narration;
+            
+            // Speak the narration and then proceed
+            speakText(currentScenario.narration).then(() => {
+                if (currentScenario.id === 'breakfast' && !gameData.cerealPrepared) {
+                    breakfastActivity.classList.remove('hidden');
+                    optionsContainer.classList.add('hidden');
+                } else {
+                    breakfastActivity.classList.add('hidden');
+                    optionsContainer.classList.remove('hidden');
+                    // Clear previous options
+                    optionsContainer.innerHTML = '';
+                    // Render new options
+                    currentScenario.options.forEach(option => {
+                        const button = document.createElement('button');
+                        button.textContent = option.text;
+                        button.classList.add('btn-option');
+                        button.addEventListener('click', () => handleOptionClick(option));
+                        optionsContainer.appendChild(button);
+                    });
+                }
+                updateMetersUI();
+                updateRewardsUI();
+            });
+        }
+
+        /**
+         * Handles the click event on an option button.
+         * @param {object} option - The selected option object.
+         */
+        function handleOptionClick(option) {
+            // If it's the special breakfast activity option, trigger it
+            if (option.action === 'breakfastActivity') {
+                breakfastActivity.classList.remove('hidden');
+                optionsContainer.classList.add('hidden');
+                gameData.cerealIngredients = []; // Reset ingredients for new prep
+                addedIngredientsSpan.textContent = 'Ninguno';
+                gameData.cerealPrepared = false; // Flag to indicate cereal is not yet prepared
+                
+                updateMartinEmoji(option.martinEmoji); // Update emoji before speaking
+                speakText(option.narration).then(() => {
+                    // No need to advance stage here, as breakfast activity handles it
+                });
+                return;
+            }
+
+            // Apply effects to meters
+            if (option.effect) {
+                gameData.meters.energy = clamp(gameData.meters.energy + option.effect.energy, 0, 100);
+                gameData.meters.happiness = clamp(gameData.meters.happiness + option.effect.happiness, 0, 100);
+                gameData.meters.productivity = clamp(gameData.meters.productivity + option.effect.productivity, 0, 100);
+            }
+
+            // Add rewards
+            if (option.reward) {
+                gameData.rewards[`${option.reward}s`]++; // e.g., gameData.rewards.stars++
+            }
+
+            updateMartinEmoji(option.martinEmoji); // Update emoji before speaking
+
+            // Speak the option's narration and then move to the next stage
+            if (option.narration) {
+                speakText(option.narration).then(() => {
+                    gameData.currentStage++;
+                    renderGameStage();
+                });
+            } else {
+                gameData.currentStage++;
+                renderGameStage();
+            }
+        }
+
+        /**
+         * Handles adding ingredients to Martin's cereal during the breakfast activity.
+         * @param {string} ingredient - The ingredient chosen.
+         */
+        function addCerealIngredient(ingredient) {
+            if (!gameData.cerealIngredients.includes(ingredient)) {
+                gameData.cerealIngredients.push(ingredient);
+                addedIngredientsSpan.textContent = gameData.cerealIngredients.map(i => {
+                    switch(i) {
+                        case 'leche': return '🥛';
+                        case 'frutas': return '🍓';
+                        case 'miel': return '🍯';
+                        case 'azucar': return '🍬';
+                        default: return i;
+                    }
+                }).join(', ');
+                speakText(`Has añadido ${ingredient}.`);
+            } else {
+                showMessageModal('¡Ya añadido!', `Ya has añadido ${ingredient} al cereal de Martin.`);
+            }
+        }
+
+        /**
+         * Calculates effects of the prepared cereal and moves to the next stage.
+         */
+        function finishCerealPreparation() {
+            let energyEffect = 0;
+            let happinessEffect = 0;
+            let productivityEffect = 0;
+            let narration = 'Martin ha terminado su desayuno. ';
+
+            if (gameData.cerealIngredients.includes('leche')) {
+                energyEffect += 5;
+                narration += 'La leche le dio energía. ';
+            }
+            if (gameData.cerealIngredients.includes('frutas')) {
+                happinessEffect += 10;
+                narration += 'Las frutas lo hicieron muy feliz. ';
+            }
+            if (gameData.cerealIngredients.includes('miel')) {
+                productivityEffect += 5;
+                narration += 'La miel lo ayudará a concentrarse. ';
+            }
+            if (gameData.cerealIngredients.includes('azucar')) {
+                energyEffect -= 5;
+                narration += '¡Pero el azúcar le quitó un poco de energía! ';
+            }
+
+            if (gameData.cerealIngredients.length === 0) {
+                narration += 'Martin no añadió nada. ¡Qué desayuno tan aburrido!';
+                energyEffect -= 10;
+                happinessEffect -= 10;
+            } else if (gameData.cerealIngredients.length >= 3 && !gameData.cerealIngredients.includes('azucar')) {
+                gameData.rewards.medals++; // Reward for a good mix
+                narration += '¡Un desayuno muy completo! ¡Ganaste una medalla!';
+            }
+
+            gameData.meters.energy = clamp(gameData.meters.energy + energyEffect, 0, 100);
+            gameData.meters.happiness = clamp(gameData.meters.happiness + happinessEffect, 0, 100);
+            gameData.meters.productivity = clamp(gameData.meters.productivity + productivityEffect, 0, 100);
+
+            gameData.cerealPrepared = true; // Mark cereal as prepared
+            
+            updateMartinEmoji('😊'); // Update emoji before speaking
+            // Speak the narration and then move to the next stage
+            speakText(narration).then(() => {
+                updateMetersUI();
+                updateRewardsUI();
+                gameData.currentStage++;
+                renderGameStage();
+            });
+        }
+
+        /**
+         * Displays the final summary of Martin's day.
+         */
+        function showGameSummary() {
+            let finalMessage = '';
+            let title = '¡El Día de Martin ha Terminado!';
+
+            const totalScore = gameData.meters.energy + gameData.meters.happiness + gameData.meters.productivity;
+
+            if (totalScore >= 250) {
+                finalMessage = `¡Felicidades! Martin tuvo un día SÚPER SALUDABLE gracias a tus excelentes decisiones. Está lleno de energía, muy feliz y listo para aprender más.`;
+                title = '¡Día SÚPER SALUDABLE!';
+                updateMartinEmoji('🥳');
+            } else if (totalScore >= 150) {
+                finalMessage = `Martin tuvo un día bastante saludable. Algunas decisiones fueron geniales, pero otras podrían mejorar. ¡Intenta de nuevo para un día aún mejor!`;
+                title = '¡Buen Día!';
+                updateMartinEmoji('🙂');
+            } else {
+                finalMessage = `Oh no, Martin tuvo un día un poco difícil. Sus niveles de energía, felicidad y productividad están bajos. ¡No te preocupes, puedes reiniciar y ayudarlo a tener un día increíble!`;
+                title = '¡Día Difícil!';
+                updateMartinEmoji('😞');
+            }
+
+            // NEW: Grand Trophy logic
+            if (gameData.rewards.stars >= 2 && gameData.rewards.medals >= 1 && gameData.rewards.trophies >= 1 && totalScore >= 200) {
+                gameData.rewards.trophies++; // Award an extra trophy for overall achievement
+                finalMessage += `\n\n¡Has ganado el TROFEO DE GRAN LOGRO por guiar a Martin tan bien! 🏆`;
+            }
+
+            finalMessage += `\n\nResultados Finales:\nEnergía: ${gameData.meters.energy}%\nFelicidad: ${gameData.meters.happiness}%\nProductividad: ${gameData.meters.productivity}%\n\nRecompensas:\nEstrellas: ${gameData.rewards.stars}\nMedallas: ${gameData.rewards.medals}\nTrofeos: ${gameData.rewards.trophies}`;
+
+            showSummaryModal(title, finalMessage);
+        }
+
+        /**
+         * Resets the game to its initial state.
+         */
+        function resetGame() {
+            gameData = {
+                currentStage: 0,
+                meters: {
+                    energy: 100,
+                    happiness: 100,
+                    productivity: 100
+                },
+                rewards: {
+                    stars: 0,
+                    medals: 0,
+                    trophies: 0
+                },
+                martinEmoji: '😴',
+                cerealIngredients: [],
+                cerealPrepared: false // Reset breakfast flag
+            };
+            renderGameStage();
+        }
+
+        // --- Event Listeners ---
+        resetButton.addEventListener('click', resetGame);
+
+        document.querySelectorAll('.ingredient-btn').forEach(button => {
+            button.addEventListener('click', (event) => {
+                const ingredient = event.target.dataset.ingredient;
+                addCerealIngredient(ingredient);
+            });
+        });
+
+        finishCerealBtn.addEventListener('click', finishCerealPreparation);
+
+        // Initial game setup
+        document.addEventListener('DOMContentLoaded', renderGameStage);
+    </script>
+</body>
+</html>
